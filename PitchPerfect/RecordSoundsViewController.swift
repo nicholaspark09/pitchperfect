@@ -9,28 +9,25 @@
 import UIKit
 import AVFoundation
 
-class HomeViewController: UIViewController, AVAudioRecorderDelegate {
+class RecordSoundsViewController: UIViewController,AVAudioRecorderDelegate {
 
     struct Constants{
         static let StopButton = "Stop"
         static let RecordButton = "Record"
-        static let InspectionSegue = "Inspection Segue"
+        static let StopSegue = "Stop Segue"
     }
     
     @IBOutlet var recordLabel: UILabel!
     var recording:Bool = false
     var audioRecorder: AVAudioRecorder!
-    lazy var stopImage: UIImage? = {
-        return UIImage(named: Constants.StopButton)
-    }()
-    lazy var recordImage: UIImage? = {
-        return UIImage(named: Constants.RecordButton)
-    }()
+    var stopImage: UIImage?
+    var recordImage: UIImage?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        stopImage = UIImage(named: Constants.StopButton)
+        recordImage = UIImage(named: Constants.RecordButton)
     }
 
     override func didReceiveMemoryWarning() {
@@ -48,9 +45,11 @@ class HomeViewController: UIViewController, AVAudioRecorderDelegate {
         if recording{
             recordLabel.text = "Recording..."
             sender.setImage(stopImage, forState: .Normal)
+            startRecording()
         }else{
             recordLabel.text = "Record"
             sender.setImage(recordImage, forState: .Normal)
+            stopRecording()
         }
         
     }
@@ -67,6 +66,31 @@ class HomeViewController: UIViewController, AVAudioRecorderDelegate {
         audioRecorder.meteringEnabled = true
         audioRecorder.prepareToRecord()
         audioRecorder.record()
+    }
+    
+    func stopRecording(){
+        audioRecorder.stop()
+        let audioSession = AVAudioSession.sharedInstance()
+        try! audioSession.setActive(false)
+    }
+    
+    func audioRecorderDidFinishRecording(recorder: AVAudioRecorder, successfully flag: Bool) {
+        print("AVAudioRecorder Done")
+        if flag{
+            performSegueWithIdentifier(Constants.StopSegue, sender: audioRecorder.url)
+        }else{
+            print("Couldn't save the file")
+        }
+        
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == Constants.StopSegue{
+            if let psvc = segue.destinationViewController as? PlaySoundsViewController{
+                let recordedAudioURL = sender as! NSURL
+                psvc.recordedAudioURL = recordedAudioURL
+            }
+        }
     }
     
 
