@@ -15,10 +15,12 @@ class RecordSoundsViewController: UIViewController,AVAudioRecorderDelegate {
         static let StopButton = "Stop"
         static let RecordButton = "Record"
         static let StopSegue = "Stop Segue"
+        static let FileName = "recordedVoice.wav"
     }
     
+    @IBOutlet var recordButton: UIButton!
+    @IBOutlet var stopRecordingButton: UIButton!
     @IBOutlet var recordLabel: UILabel!
-    var recording:Bool = false
     var audioRecorder: AVAudioRecorder!
     var stopImage: UIImage?
     var recordImage: UIImage?
@@ -41,22 +43,25 @@ class RecordSoundsViewController: UIViewController,AVAudioRecorderDelegate {
 
     
     @IBAction func recordPressed(sender: UIButton) {
-        recording = !recording
-        if recording{
             recordLabel.text = "Recording..."
-            sender.setImage(stopImage, forState: .Normal)
+            stopRecordingButton.enabled = true
+            sender.enabled = false
             startRecording()
-        }else{
-            recordLabel.text = "Record"
-            sender.setImage(recordImage, forState: .Normal)
-            stopRecording()
-        }
-        
+            stopRecordingButton.hidden = false
     }
+    
+    @IBAction func stopRecordingPressed(sender: UIButton) {
+        recordLabel.text = "Record"
+        stopRecording()
+        recordButton.enabled = true
+        sender.enabled = false
+        stopRecordingButton.hidden = true
+    }
+    
     
     func startRecording(){
         let dirPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
-        let recordingName = "recordedVoice.wav"
+        let recordingName = Constants.FileName
         let pathArray = [dirPath, recordingName]
         let filePath = NSURL.fileURLWithPathComponents(pathArray)
         let session = AVAudioSession.sharedInstance()
