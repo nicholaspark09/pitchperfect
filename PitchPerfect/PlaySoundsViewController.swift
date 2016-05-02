@@ -54,7 +54,7 @@ class PlaySoundsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupAudio()
-
+        self.title = "Play Sounds"
     }
 
     override func viewWillAppear(animated: Bool) {
